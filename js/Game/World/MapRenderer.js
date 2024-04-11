@@ -7,48 +7,32 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Import
 export class MapRenderer {
 
 	constructor() {
-	
+		this.gameMap;
+
+		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
+		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
+		this.goalGeometries = new THREE.BoxGeometry(0,0,0);
 	}
 
 	createRendering(gameMap) {
 		this.gameMap = gameMap;
 
-		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
-		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
-		this.goalGeometries = new THREE.BoxGeometry(0,0,0);
+		
 	
 		// Iterate over all of the 
 		// indices in our graph
 		for (let node of this.gameMap.graph.nodes) {
 			
-			if (node.type != TileNode.Type.Ground) {
-				this.createTile(node);
-			}
+			this.createTile(node);
 
 
 		}
 
 		let groundMaterial = new THREE.MeshStandardMaterial({ color: 0x343434 });
-		let groundGeometry = this.makeGroundGeometry();
-		let ground = new THREE.Mesh(groundGeometry, groundMaterial);
+		let ground = new THREE.Mesh(this.groundGeometries, groundMaterial);
 
 		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
-
-		 // Load GLB file
-		//  let loader = new GLTFLoader();
-		//  loader.load(
-		// 	 'models/lambo.glb',
-		// 	 function (gltf) {
-		// 		console.log("hit")
-		// 		gltf.scene.scale.set(0.03, 0.03, 0.03)
-		// 		obstacles.add(gltf.scene);
-		// 	 },
-		// 	 undefined,
-		// 	 function (error) {
-		// 		 console.error('Failed to load GLB file:', error);
-		// 	 }
-		//  );
 
 		let goalMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700 });
 		let goals = new THREE.Mesh(this.goalGeometries, goalMaterial);
@@ -93,18 +77,26 @@ export class MapRenderer {
 									);
 		} 
 
-		if (node.type === TileNode.Type.Goal) {
+		else if (node.type === TileNode.Type.Goal) {
 			this.goalGeometries = BufferGeometryUtils.mergeGeometries(
 										[this.goalGeometries,
 										geometry]
 									);
 		} 
+		else {
+			this.groundGeometries = BufferGeometryUtils.mergeGeometries(
+										[this.groundGeometries,
+										geometry]
+									);
+		}
+
 
 	}
 
 
+	// debug only
 	highlight(vec, color) {
-		let geometry = new THREE.BoxGeometry( this.tileSize, 1, this.tileSize ); 
+		let geometry = new THREE.BoxGeometry( this.gameMap.tileSize, 1, this.gameMap.tileSize ); 
 		let material = new THREE.MeshBasicMaterial( { color: color } ); 
 		
 		geometry.translate(vec.x, vec.y+0.5, vec.z);
@@ -118,7 +110,7 @@ export class MapRenderer {
 		vector.normalize();
 		let origin = pos.clone();
 		origin.y += 1.5;
-		let length = this.tileSize;
+		let length = this.gameMap.tileSize;
 		let hex = 0x000000;
 
 		let arrowHelper = new THREE.ArrowHelper( vector, origin, length, hex );

@@ -139,7 +139,6 @@ export class GameMap {
 				}
 			}
 		}
-		// this.mapRenderer.showFlowField(this);
 
 		for (let [n, cost] of this.heatmap) {
 			if (goals.includes(n)) {
