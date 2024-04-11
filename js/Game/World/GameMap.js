@@ -11,15 +11,15 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 100;
-		this.depth = 100;
+		this.width = 500;
+		this.depth = 500;
 	
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
 		// We also need to define a tile size 
 		// for our tile based map
-		this.tileSize = 5;
+		this.tileSize = 25;
 
 		// Get our columns and rows based on
 		// width, depth and tile size
@@ -95,6 +95,76 @@ export class GameMap {
 		return path.reverse();
 	}
 
+	setupSingleGoalFlowField(goal) {
+		this.goals = [goal];
+		this.setupFlowField(this.goals);
+	}
+
+	setupFlowField(goals) {
+		this.goals = goals;
+		this.heatmap = new Map();
+		this.flowfield = new Map();
+
+		let unvisited = [];
+
+		for (let g of goals) {
+			unvisited.push(g);
+			this.heatmap.set(g, 0);
+		}
+
+
+		while (unvisited.length > 0) {
+
+			let node = unvisited.shift();
+
+			for (let edge of node.edges) {
+
+				let neighbour = edge.node;
+				let cost = edge.cost;
+
+				let offset = 0;
+				if (this.heatmap.has(node)) {
+					offset = this.heatmap.get(node);
+				}
+
+				let pathCost = cost + offset;
+
+				if (!this.heatmap.has(neighbour) ||
+					this.heatmap.get(neighbour) > pathCost) {
+					this.heatmap.set(neighbour, pathCost);
+
+					if (!unvisited.includes(neighbour)) {
+						unvisited.push(neighbour);
+					}
+				}
+			}
+		}
+		// this.mapRenderer.showFlowField(this);
+
+		for (let [n, cost] of this.heatmap) {
+			if (goals.includes(n)) {
+				this.flowfield.set(n, new THREE.Vector3(0,0,0));
+			} else {
+
+				let best = null;
+				let lowest = Number.MAX_VALUE;
+
+				for (let edge of n.edges) {
+
+					let cost = this.heatmap.get(edge.node);
+					
+					if (lowest > cost) {
+						best = edge.node;
+						lowest = cost;
+					}
+				}
+				let dir = VectorUtil.sub(this.localize(best), this.localize(n));
+				this.flowfield.set(n, dir);
+			}
+		}
+
+		this.mapRenderer.showFlowField(this);
+	}
 
 	
 }

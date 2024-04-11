@@ -93,7 +93,7 @@ export class Graph {
 
 	getRandomEmptyTile() {
 		let index = Math.floor(Math.random()*(this.nodes.length));
-		while (this.nodes[index].type == TileNode.Type.Wall) {
+		while (this.nodes[index].type == TileNode.Type.Wall || this.nodes[index].type == TileNode.Type.Goal) {
 			index = Math.floor(Math.random()*(this.nodes.length));
 		}
 		return this.nodes[index];

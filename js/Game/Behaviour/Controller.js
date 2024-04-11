@@ -75,13 +75,30 @@ export class Controller {
 
 	direction() {
 		
-		let angleOffset = this.angleOffset();
-		let direction = this.worldDirection.clone();
+		// let angleOffset = this.angleOffset();
+		// let direction = this.worldDirection.clone();
 		
-		direction.normalize();
-		direction.applyAxisAngle(new THREE.Vector3(0,1,0), angleOffset);
+		// direction.normalize();
+		// direction.applyAxisAngle(new THREE.Vector3(0,1,0), angleOffset);
         
-       	return direction;
+       	// return direction;
+		   let direction = new THREE.Vector3();
+
+		   if (this.left) {
+			   direction.x = -1;
+		   }
+		   if (this.right) {
+			   direction.x = 1;
+		   }
+   
+		   if (this.forward) {
+			   direction.z = -1;
+		   }
+		   if (this.backward) {
+			   direction.z = 1;
+		   }
+   
+		   return direction;
 	}
 
   	angleOffset() {
@@ -93,7 +110,7 @@ export class Controller {
             } else if (this.right) {
                 angleOffset = - Math.PI / 4 // forward+right
             } else {
-            	angleOffset = 0;
+            	
             }
         } else if (this.backward) {
             if (this.left) {

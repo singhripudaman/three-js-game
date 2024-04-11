@@ -6,8 +6,21 @@
 		<style>
 			body { margin: 0; }
 		</style>
+
+<link type="text/css" rel="stylesheet" href="main.css">
+
 	</head>
 	<body>
+		<audio id="weewoo" preload="auto" loop="true" style="display: none">
+			<source src="sounds/weewoo.ogg" type="audio/ogg">
+			<source src="sounds/weewoo.mp3" type="audio/mpeg">
+		</audio>
+		<div id="overlay">
+			<h2>
+				Maze Escape: Police
+			</h2>
+			<button id="startButton">Play</button>
+		</div>
 		<script type="module" src="/js/main.js"></script>
 	</body>
 </html>

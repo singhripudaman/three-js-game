@@ -3,9 +3,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GameMap } from './Game/World/GameMap.js';
 import { Character } from './Game/Behaviour/Character.js';
 import { Player } from './Game/Behaviour/Player.js';
+import { NPC } from './Game/Behaviour/NPC.js';
 import { Controller} from './Game/Behaviour/Controller.js';
 import { TileNode } from './Game/World/TileNode.js';
 import { Vector3 } from 'three';
+import { Resources } from './Util/Resources.js';
 
 
 // Create Scene
@@ -15,9 +17,16 @@ const renderer = new THREE.WebGLRenderer();
 
 // Camera Settings
 const cameraDistance = 0;
-const cameraHeight = 40;
+const cameraHeight = 100;
 var cameraOffset = new THREE.Vector3(0, cameraHeight, cameraDistance);
 var target = new THREE.Vector3(); 
+
+
+// Audio
+let listener;
+
+
+
 
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -34,11 +43,26 @@ let gameMap;
 // Player
 let player;
 
+let npc;
+
+// resources
+
+let files = [
+	{ name: 'car', url: '/models/lambo.glb'},
+	{ name: 'police', url: '/models/police.glb'}
+]
+
+const resources = new Resources(files);
+await resources.loadAll();
+
 
 
 
 // Setup our scene
 function setup() {
+
+	const overlay = document.getElementById( 'overlay' );
+	overlay.remove();
 
 	scene.background = new THREE.Color(0xffffff);
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -50,6 +74,9 @@ function setup() {
 	directionalLight.position.set(0, 5, 5);
 	scene.add(directionalLight);
 
+	listener = new THREE.AudioListener();
+	camera.add(listener);
+
 
 
 	// initialize our gameMap
@@ -57,20 +84,43 @@ function setup() {
 	gameMap.init(scene);
 	
 	// Create Player
+	npc = new NPC(new THREE.Color(0x000000));
+
 	player = new Player(new THREE.Color(0xff0000));
+
+	npc.setModel(resources.get("police"));
+
+	player.setModel(resources.get("car"));
+	// player.setLight()
+
+	npc.setSound(listener, "weewoo")
+
 
 	// Add the character to the scene
 	scene.add(player.gameObject);
+	scene.add(npc.gameObject);
+
+	// scene.add(player.light)
+
 
 	// Get a random starting place for the enemy
+	let startNPC = gameMap.graph.getRandomEmptyTile();
+
 	let startPlayer = gameMap.graph.getRandomEmptyTile();
 
 	// this is where we start the player
 	player.location = gameMap.localize(startPlayer);
+	npc.location = gameMap.localize(startNPC);
 
+	
+
+
+	gameMap.setupSingleGoalFlowField(startPlayer);
 
 	
 	scene.add(gameMap.gameObject);
+
+	
 
 	
 	
@@ -93,6 +143,11 @@ function animate() {
 	
 	let deltaTime = clock.getDelta();
 
+	let steer = npc.interactiveFlow(gameMap, player);
+	npc.applyForce(steer);
+	npc.update(deltaTime, gameMap);
+
+
 
 	player.update(deltaTime, gameMap, controller);
  
@@ -101,7 +156,9 @@ function animate() {
 }
 
 
-setup();
+
+const startButton = document.getElementById( 'startButton' );
+			startButton.addEventListener( 'click', setup );
 
 
 function onWindowResize() {

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { TileNode } from './TileNode.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Import GLTFLoader
+
 
 export class MapRenderer {
 
@@ -26,12 +28,27 @@ export class MapRenderer {
 
 		}
 
-		let groundMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+		let groundMaterial = new THREE.MeshStandardMaterial({ color: 0x343434 });
 		let groundGeometry = this.makeGroundGeometry();
 		let ground = new THREE.Mesh(groundGeometry, groundMaterial);
 
-		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
+
+		 // Load GLB file
+		//  let loader = new GLTFLoader();
+		//  loader.load(
+		// 	 'models/lambo.glb',
+		// 	 function (gltf) {
+		// 		console.log("hit")
+		// 		gltf.scene.scale.set(0.03, 0.03, 0.03)
+		// 		obstacles.add(gltf.scene);
+		// 	 },
+		// 	 undefined,
+		// 	 function (error) {
+		// 		 console.error('Failed to load GLB file:', error);
+		// 	 }
+		//  );
 
 		let goalMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700 });
 		let goals = new THREE.Mesh(this.goalGeometries, goalMaterial);
@@ -83,6 +100,55 @@ export class MapRenderer {
 									);
 		} 
 
+	}
+
+
+	highlight(vec, color) {
+		let geometry = new THREE.BoxGeometry( this.tileSize, 1, this.tileSize ); 
+		let material = new THREE.MeshBasicMaterial( { color: color } ); 
+		
+		geometry.translate(vec.x, vec.y+0.5, vec.z);
+		this.flowfieldGraphics.add(new THREE.Mesh( geometry, material ));
+		
+	}
+
+	// Debug method
+	arrow(pos, vector) {
+
+		vector.normalize();
+		let origin = pos.clone();
+		origin.y += 1.5;
+		let length = this.tileSize;
+		let hex = 0x000000;
+
+		let arrowHelper = new THREE.ArrowHelper( vector, origin, length, hex );
+		this.flowfieldGraphics.add( arrowHelper );
+
+	}
+
+	
+	// Debug method
+	showFlowField(gameMap) {
+		if ((this.flowfieldGraphics != undefined) 
+			&& (this.flowfieldGraphics.children.length > 0)) {
+				gameMap.scene.remove(this.flowfieldGraphics);
+			
+		}
+		this.flowfieldGraphics = new THREE.Group();
+			
+		for (let [n,i] of gameMap.heatmap) {
+			let nPos = gameMap.localize(n);
+			if ((n == gameMap.goal) || (gameMap.goals.includes(n))) {
+				this.highlight(nPos, new THREE.Color(0xffffff));
+			} else {
+				// this only works because i is kind of in the hue range (0,360)
+				this.highlight(nPos, new THREE.Color('hsl('+i*2+', 100%, 50%)'));
+				if (gameMap.flowfield.size != 0)
+					this.arrow(nPos, gameMap.flowfield.get(n));
+			}
+			
+		}
+		gameMap.scene.add(this.flowfieldGraphics);
 	}
 
 

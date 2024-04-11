@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import { VectorUtil } from '../../Util/VectorUtil.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
 
 export class Character {
 
 	// Character Constructor
 	constructor(mColor) {
 
-		this.size = 2;
+		this.size = 15;
 
 		// Create our cone geometry and material
 		let coneGeo = new THREE.ConeGeometry(this.size/2, this.size, 10);
@@ -29,9 +31,13 @@ export class Character {
 		this.acceleration = new THREE.Vector3(0, 0, 0);
 		this.orientation = new THREE.Vector3(0,0,0);
 
-		this.topSpeed = 100;
+		this.topSpeed = 50;
 		this.mass = 1;
 		this.frictionMagnitude = 0;
+
+		this.sound = null;
+
+		this.light;
 	}
 
 	setModel(model) {
@@ -54,6 +60,26 @@ export class Character {
         this.gameObject = new THREE.Group();
         this.gameObject.add(model);
     }
+
+	setSound(listener, name) {
+		const soundElement = document.getElementById(name);
+		this.sound = new THREE.PositionalAudio(listener);
+
+		this.sound.setMediaElementSource(soundElement)
+			this.sound.setRefDistance(0.20);
+			soundElement.play()
+		this.gameObject.add(this.sound)
+
+	}
+
+	playSound() {
+		this.sound.play()
+	}
+
+	setLight() {
+		this.light = new THREE.DirectionalLight(0xff0000, 0.1)
+
+	}
 
 	// update character
 	update(deltaTime, gameMap) {
@@ -85,6 +111,9 @@ export class Character {
 		
 		// set the game object position
 		this.gameObject.position.set(this.location.x, this.location.y, this.location.z);
+		if (this.light) {
+			this.light.position.set(this.location.x, this.location.y, this.location.z)
+		}
 		this.acceleration.multiplyScalar(0);
 	
 	
