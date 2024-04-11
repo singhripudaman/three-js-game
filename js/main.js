@@ -5,7 +5,6 @@ import { Character } from './Game/Behaviour/Character.js';
 import { Player } from './Game/Behaviour/Player.js';
 import { Controller} from './Game/Behaviour/Controller.js';
 import { TileNode } from './Game/World/TileNode.js';
-import { generateMaze } from './Game/World/MazeGenerator.js'; // Import the generateMaze function
 
 
 // Create Scene
@@ -47,8 +46,6 @@ function setup() {
 
 	const mazeRows = 21; 
     const mazeCols = 21;
-    const maze = generateMaze(mazeRows, mazeCols);
-	console.log(maze)
 
 	// initialize our gameMap
 	gameMap = new GameMap();

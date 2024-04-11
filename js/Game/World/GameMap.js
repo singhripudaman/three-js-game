@@ -33,8 +33,6 @@ export class GameMap {
 		// Create our map renderer
 		this.mapRenderer = new MapRenderer();
 
-		this.mazeRows = 0;
-        this.mazeCols = 0;
         this.mazeData = [];
 
 
@@ -45,7 +43,6 @@ export class GameMap {
 		this.scene = scene; 
 
 		const mazeData = this.generateMaze();
-		console.log(mazeData)
 
 		this.graph.initGraph(mazeData);
 

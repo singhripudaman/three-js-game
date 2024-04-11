@@ -20,7 +20,6 @@ export class Controller {
 	}
 
 	handleEvent(event) {
-		console.log(event.code)
 		if (event.type == 'keydown') {
 			switch (event.code) {
 				case("KeyW"): 

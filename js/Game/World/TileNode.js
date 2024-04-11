@@ -64,6 +64,6 @@ export class TileNode {
 			s += "-- " + this.edges[index].node.id + ": " + this.edges[index].cost + ", ";
 		}
 		s = s.slice(0, -2);
-		console.log(s);
+		 (s);
 	}
 }

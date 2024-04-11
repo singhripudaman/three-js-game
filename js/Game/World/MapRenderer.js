@@ -60,13 +60,13 @@ export class MapRenderer {
 		let y = node.type == TileNode.Type.Wall ? this.gameMap.tileSize : 0;
 		let z = (node.z * this.gameMap.tileSize) + this.gameMap.start.z;
 
-		let height = node.type == TileNode.Type.Wall ? this.gameMap.tileSize*2 : 1;
+		let height = node.type == TileNode.Type.Wall ? this.gameMap.tileSize : 1;
 
 		let geometry = new THREE.BoxGeometry(this.gameMap.tileSize,
 											 height, 
 											 this.gameMap.tileSize);
 		geometry.translate(x + 0.5 * this.gameMap.tileSize,
-						   y + 0.5 * this.gameMap.tileSize,
+						   this.gameMap.tileSize,
 						   z + 0.5 * this.gameMap.tileSize);
 
 		if (node.type === TileNode.Type.Wall) {
