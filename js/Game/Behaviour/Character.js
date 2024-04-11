@@ -6,7 +6,7 @@ export class Character {
 	// Character Constructor
 	constructor(mColor) {
 
-		this.size = 3;
+		this.size = 2;
 
 		// Create our cone geometry and material
 		let coneGeo = new THREE.ConeGeometry(this.size/2, this.size, 10);

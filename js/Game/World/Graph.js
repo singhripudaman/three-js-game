@@ -31,9 +31,9 @@ export class Graph {
 				let node = new TileNode(this.nodes.length, i, j, type);
 
 
-				// if (grid[i][j] == 1) {
-				// 	node.type = TileNode.Type.Obstacle;
-				// }
+				if (grid[j][i] == 1) {
+					node.type = TileNode.Type.Wall;
+				}
 
 				this.nodes.push(node);
 			}
@@ -90,7 +90,7 @@ export class Graph {
 
 	getRandomEmptyTile() {
 		let index = Math.floor(Math.random()*(this.nodes.length));
-		while (this.nodes[index].type == TileNode.Type.Obstacle) {
+		while (this.nodes[index].type == TileNode.Type.Wall) {
 			index = Math.floor(Math.random()*(this.nodes.length));
 		}
 		return this.nodes[index];

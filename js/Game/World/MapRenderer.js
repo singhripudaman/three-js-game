@@ -64,7 +64,7 @@ export class MapRenderer {
 						   y + 0.5 * this.gameMap.tileSize,
 						   z + 0.5 * this.gameMap.tileSize);
 
-		if (node.type === TileNode.Type.Obstacle) {
+		if (node.type === TileNode.Type.Wall) {
 			this.obstacleGeometries = BufferGeometryUtils.mergeGeometries(
 										[this.obstacleGeometries,
 										geometry]

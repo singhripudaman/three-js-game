@@ -12,14 +12,14 @@ export class GameMap {
 	constructor() {
 
 		this.width = 200;
-		this.depth = 140;
+		this.depth = 200;
 	
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);
 
 		// We also need to define a tile size 
 		// for our tile based map
-		this.tileSize = 2;
+		this.tileSize = 5;
 
 		// Get our columns and rows based on
 		// width, depth and tile size
@@ -44,63 +44,28 @@ export class GameMap {
 	init(scene) {
 		this.scene = scene; 
 
-		this.graph.initGraph([]);
+		const mazeData = this.generateMaze();
+		console.log(mazeData)
+
+		this.graph.initGraph(mazeData);
 
 		// Set the game object to our rendering
 		this.gameObject = this.mapRenderer.createRendering(this);
 
-		this.generateMaze();
+		
 
         // Render maze
-        this.renderMaze(scene);
+        // this.renderMaze(scene);
 	
 	}
 
 	generateMaze() {
-		this.mazeRows = 30; // Adjust as needed
-        this.mazeCols = 30;
-        this.mazeData = generateMaze(this.mazeRows, this.mazeCols);
+		const mazeRows = this.rows; // Adjust as needed
+        const mazeCols = this.cols;
+		const mazeData = generateMaze(mazeRows, mazeCols);
+		return mazeData
 	}
 
-	renderMaze(scene) {
-        const mazeBlockSize = 10; // Adjust as needed
-
-        // Loop through maze data and render walls
-        for (let i = 0; i < this.mazeRows; i++) {
-            for (let j = 0; j < this.mazeCols; j++) {
-				// * WALL
-                if (this.mazeData[i][j] === 1) { 
-                    const x = j * mazeBlockSize - this.width / 2; 
-                    const z = i * mazeBlockSize - this.depth / 2; 
-
-                    // Create wall geometry
-                    const wallGeometry = new THREE.BoxGeometry(mazeBlockSize, mazeBlockSize, mazeBlockSize);
-                    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
-                    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-
-                    // Position the wall
-                    wall.position.set(x, mazeBlockSize / 2, z);
-
-                    // Add wall to the scene
-                    scene.add(wall);
-                } else {
-					const x = j * mazeBlockSize - this.width / 2; 
-                    const z = i * mazeBlockSize - this.depth / 2; 
-
-                    // Create wall geometry
-                    const wallGeometry = new THREE.BoxGeometry(mazeBlockSize, 1, mazeBlockSize);
-                    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-                    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-
-                    // Position the wall
-                    wall.position.set(x, 0, z);
-
-                    // Add wall to the scene
-                    scene.add(wall);
-				}
-            }
-        }
-    }
 
 
 
