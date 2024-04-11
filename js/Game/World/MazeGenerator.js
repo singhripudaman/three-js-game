@@ -5,26 +5,51 @@ function generateMaze(rows, cols) {
     const maze = new Array(rows).fill(null).map(() => new Array(cols).fill(1));
     const stack = [];
 
-    // Start from a random cell
-    let startX = Math.floor(Math.random() * rows);
-    let startY = Math.floor(Math.random() * cols);
-    maze[startX][startY] = 0; // Mark the starting cell as visited
+    // Selecting a random edge
+    const edge = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+
+    // Start from a random cell on the selected edge
+    let startX, startY;
+
+    switch (edge) {
+        case 0: // Top edge
+            startX = 0;
+            startY = Math.floor(Math.random() * cols);
+            break;
+        case 1: // Right edge
+            startX = Math.floor(Math.random() * rows);
+            startY = cols - 1;
+            break;
+        case 2: // Bottom edge
+            startX = rows - 1;
+            startY = Math.floor(Math.random() * cols);
+            break;
+        case 3: // Left edge
+            startX = Math.floor(Math.random() * rows);
+            startY = 0;
+            break;
+    }
+
+    console.log(startX, startY)
+
+
+    maze[startX][startY] = 2; // Mark the starting cell as visited
     stack.push([startX, startY]); // Push the starting cell to the stack
 
     // Perform DFS
     while (stack.length > 0) {
-        let [x, y] = stack.pop(); 
-        let neighbors = getUnvisitedNeighbors(x, y, maze); 
+        let [x, y] = stack.pop();
+        let neighbors = getUnvisitedNeighbors(x, y, maze);
 
         if (neighbors.length > 0) {
-            stack.push([x, y]); 
-            let [nx, ny] = neighbors[Math.floor(Math.random() * neighbors.length)]; 
+            stack.push([x, y]);
+            let [nx, ny] = neighbors[Math.floor(Math.random() * neighbors.length)];
             maze[nx][ny] = 0; // Mark the neighbor as visited
             maze[(x + nx) >> 1][(y + ny) >> 1] = 0; // Carve a passage between the current cell and the neighbor
             stack.push([nx, ny]); // Push the neighbor to the stack
         }
     }
-
+    console.log(maze)
     return maze;
 }
 

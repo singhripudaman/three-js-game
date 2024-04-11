@@ -2,7 +2,8 @@ export class TileNode {
 
 	static Type = Object.freeze({
 		Ground: Symbol("ground"),
-		Wall: Symbol("wall")
+		Wall: Symbol("wall"),
+		Goal: Symbol("goal")
 	})
 
 

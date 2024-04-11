@@ -13,6 +13,7 @@ export class MapRenderer {
 
 		this.groundGeometries = new THREE.BoxGeometry(0,0,0);
 		this.obstacleGeometries = new THREE.BoxGeometry(0,0,0);
+		this.goalGeometries = new THREE.BoxGeometry(0,0,0);
 	
 		// Iterate over all of the 
 		// indices in our graph
@@ -32,10 +33,14 @@ export class MapRenderer {
 		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
 
+		let goalMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700 });
+		let goals = new THREE.Mesh(this.goalGeometries, goalMaterial);
+
 		let gameObject = new THREE.Group();
 		
 		gameObject.add(ground);
 		gameObject.add(obstacles);
+		gameObject.add(goals);
 
 		return gameObject;
 	}
@@ -52,10 +57,10 @@ export class MapRenderer {
 	createTile(node) {
 
 		let x = (node.x * this.gameMap.tileSize) + this.gameMap.start.x;
-		let y = this.gameMap.tileSize;
+		let y = node.type == TileNode.Type.Wall ? this.gameMap.tileSize : 0;
 		let z = (node.z * this.gameMap.tileSize) + this.gameMap.start.z;
 
-		let height = this.gameMap.tileSize*2;
+		let height = node.type == TileNode.Type.Wall ? this.gameMap.tileSize*2 : 1;
 
 		let geometry = new THREE.BoxGeometry(this.gameMap.tileSize,
 											 height, 
@@ -67,6 +72,13 @@ export class MapRenderer {
 		if (node.type === TileNode.Type.Wall) {
 			this.obstacleGeometries = BufferGeometryUtils.mergeGeometries(
 										[this.obstacleGeometries,
+										geometry]
+									);
+		} 
+
+		if (node.type === TileNode.Type.Goal) {
+			this.goalGeometries = BufferGeometryUtils.mergeGeometries(
+										[this.goalGeometries,
 										geometry]
 									);
 		} 

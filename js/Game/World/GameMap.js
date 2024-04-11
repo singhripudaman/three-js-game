@@ -11,8 +11,8 @@ export class GameMap {
 	// Constructor for our GameMap class
 	constructor() {
 
-		this.width = 200;
-		this.depth = 200;
+		this.width = 100;
+		this.depth = 100;
 	
 
 		this.start = new THREE.Vector3(-this.width/2,0,-this.depth/2);

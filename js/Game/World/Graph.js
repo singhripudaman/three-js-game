@@ -34,6 +34,9 @@ export class Graph {
 				if (grid[j][i] == 1) {
 					node.type = TileNode.Type.Wall;
 				}
+				if (grid[j][i] == 2) {
+					node.type = TileNode.Type.Goal;
+				}
 
 				this.nodes.push(node);
 			}
