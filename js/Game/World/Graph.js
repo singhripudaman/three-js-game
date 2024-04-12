@@ -13,6 +13,8 @@ export class Graph {
 		this.cols = cols;
 		this.rows = rows;
 
+		this.goalNode;
+
 	}
 
 	length() {
@@ -36,6 +38,7 @@ export class Graph {
 				}
 				if (grid[j][i] == 2) {
 					node.type = TileNode.Type.Goal;
+					this.goalNode = node
 				}
 
 				this.nodes.push(node);

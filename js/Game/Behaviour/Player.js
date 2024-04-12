@@ -7,6 +7,10 @@ export class Player extends Character {
 		super(colour);
 		this.frictionMagnitude = 20;
 
+		this.name = "player"
+
+		this.gameObject.name = "player";
+
 		// State
 		this.state = new IdleState();
 
@@ -19,7 +23,19 @@ export class Player extends Character {
 	}
 
 	update(deltaTime, gameMap, controller) {
+
+		const goalNode = gameMap.graph.goalNode;
+		const goalLocation = gameMap.localize(goalNode)
+
 		this.state.updateState(this, controller);
+
+		
+		console.log(this.location.distanceTo(goalLocation))
+
+		console.log(this.location.distanceTo(goalLocation))
+		if (this.location.distanceTo(goalLocation) < 23) {
+			console.log("gameover")
+		}
 		super.update(deltaTime, gameMap);
 	}
 

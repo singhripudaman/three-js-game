@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { VectorUtil } from '../../Util/VectorUtil.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
 
 
 export class Character {
@@ -16,6 +18,7 @@ export class Character {
 		
 		// Create the local cone mesh (of type Object3D)
 		let mesh = new THREE.Mesh(coneGeo, coneMat);
+		mesh.name = "player"
 		// Increment the y position so our cone is just atop the y origin
 		mesh.position.y = mesh.position.y+1;
 		// Rotate our X value of the mesh so it is facing the +z axis
@@ -24,6 +27,8 @@ export class Character {
 		// Add our mesh to a Group to serve as the game object
 		this.gameObject = new THREE.Group();
 		this.gameObject.add(mesh);		
+
+		this.gameObject.name = "player"
 
 		// Initialize movement variables
 		this.location = new THREE.Vector3(0,0,0);
@@ -57,8 +62,13 @@ export class Character {
 		let scale = this.size/dz;
 		model.scale.set(scale, scale, scale);
 
+		model.name = this.name;
+
+		
+		
         this.gameObject = new THREE.Group();
         this.gameObject.add(model);
+		this.gameObject.name = this.name;
     }
 
 	setSound(listener, name) {
@@ -80,6 +90,8 @@ export class Character {
 		this.light = new THREE.DirectionalLight(0xff0000, 0.1)
 
 	}
+
+	
 
 	// update character
 	update(deltaTime, gameMap) {
@@ -184,3 +196,4 @@ export class Character {
 
 
 }
+

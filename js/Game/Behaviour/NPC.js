@@ -1,17 +1,36 @@
 import * as THREE from 'three';
 import { VectorUtil } from '../../Util/VectorUtil.js';
 import { Character } from './Character.js';
+import { State } from './State.js';
 
 export class NPC extends Character {
 
 	// Character Constructor
 	constructor(mColor) {
 
+		
+
 		super(mColor);
+		this.name = "enemy"
+		this.gameObject.name = "enemy"
 
 		// NEW
 		this.segment = 0;
 		this.path = [];
+
+
+		this.state = new IdleState();
+
+		this.state.enterState(this);
+
+		this.raycaster = new THREE.Raycaster();
+
+		this.search = [];
+		this.lag = 0.02;
+
+		for (let i = 0; i < 360; i+=3) {
+			this.search[i] = new THREE.Vector3(Math.cos(i), 0, Math.sin(i));
+		}
 	}
 
 
@@ -71,6 +90,8 @@ export class NPC extends Character {
 
 	}
 
+
+
 	interactiveFlow(gameMap, player) {
 		let playerNode = gameMap.quantize(player.location);
 
@@ -81,10 +102,104 @@ export class NPC extends Character {
 		return this.flow(gameMap);
 	}
 
+	interactiveFlowGoal(gameMap, goalLoc) {
+		let goalNode = gameMap.quantize(goalLoc);
 
+		if (!gameMap.goals.includes(goalNode)) {
+			gameMap.setupSingleGoalFlowField(goalNode);
+		}
 
+		return this.flow(gameMap);
+	}
 
+	
+
+	switchState(state) {
+		this.state = state;
+		this.state.enterState(this);
+	}
+
+	update(deltaTime, gameMap, player) {
+		this.state.updateState(this, gameMap, player);
+		super.update(deltaTime, gameMap);
+	}
 
 
 
 }
+
+
+export class IdleState extends State {
+
+	enterState(enemy, gameMap) {
+
+	}
+
+	updateState(enemy, gameMap, player) {
+		
+		const condition = enemy.location.distanceTo(player.location) < 100;
+
+
+		if (condition) {
+			enemy.switchState(new ChaseState())
+		} else {
+			enemy.switchState(new PatrolState())
+		}
+	}
+
+}
+
+
+export class ChaseState extends State {
+	enterState(enemy, gameMap) {
+
+	}
+
+	updateState(enemy, gameMap, player) {
+		const condition = enemy.location.distanceTo(player.location) > 130;
+
+		if (condition) {
+			enemy.switchState(new PatrolState())
+		} else {
+			let steer = enemy.interactiveFlow(gameMap, player);
+			enemy.applyForce(steer);
+		}
+	}
+}
+
+
+export class PatrolState extends State {
+    enterState(enemy) {
+        // When entering the patrol state, set a random destination for the enemy
+       
+    }
+
+    updateState(enemy, gameMap, player) {
+        // Check if the player is within a certain distance
+        const condition = enemy.location.distanceTo(player.location) < 100;
+
+        if (condition) {
+            enemy.switchState(new ChaseState());
+        } else {
+			if ( !enemy.randomDestination) {
+				enemy.randomDestination = this.generateRandomDestination(enemy, gameMap);
+			}
+            // Check if enemy has reached the random destination
+            if (enemy.location.distanceTo(enemy.randomDestination) < 10) {
+                // If reached, generate a new random destination
+                enemy.randomDestination = this.generateRandomDestination(enemy, gameMap);
+            } else {
+                // Move towards the random destination
+                let steer = enemy.interactiveFlowGoal(gameMap, enemy.randomDestination); // Adjust radius as needed
+                enemy.applyForce(steer);
+            }
+        }
+    }
+
+    generateRandomDestination(enemy, gameMap) {
+        // Generate a random empty tile as destination
+        const randomEmptyTile = gameMap.graph.getRandomEmptyTile();
+        return gameMap.localize(randomEmptyTile);
+    }
+}
+

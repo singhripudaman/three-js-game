@@ -17,16 +17,13 @@ const renderer = new THREE.WebGLRenderer();
 
 // Camera Settings
 const cameraDistance = 0;
-const cameraHeight = 100;
+const cameraHeight = 500;
 var cameraOffset = new THREE.Vector3(0, cameraHeight, cameraDistance);
 var target = new THREE.Vector3(); 
 
 
 // Audio
 let listener;
-
-
-
 
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -88,6 +85,7 @@ function setup() {
 
 	player = new Player(new THREE.Color(0xff0000));
 
+
 	npc.setModel(resources.get("police"));
 
 	player.setModel(resources.get("car"));
@@ -112,16 +110,16 @@ function setup() {
 	player.location = gameMap.localize(startPlayer);
 	npc.location = gameMap.localize(startNPC);
 
-	
+	let goal = gameMap.graph.getRandomEmptyTile();
 
 
-	gameMap.setupSingleGoalFlowField(startPlayer);
+	gameMap.setupSingleGoalFlowField(goal);
 
 	
 	scene.add(gameMap.gameObject);
 
 	
-
+	
 	
 	
 	//First call to animate
@@ -143,17 +141,33 @@ function animate() {
 	
 	let deltaTime = clock.getDelta();
 
-	let steer = npc.interactiveFlow(gameMap, player);
-	npc.applyForce(steer);
-	npc.update(deltaTime, gameMap);
+	// let steer = npc.interactiveFlow(gameMap, player);
+	// npc.applyForce(steer);
+	npc.update(deltaTime, gameMap, player);
 
 
 
 	player.update(deltaTime, gameMap, controller);
+
+	checkCollisions()
  
 	orbitControls.update();
 	controller.setWorldDirection();
 }
+
+function checkCollisions() {
+	const mapObject = scene.children.find(o => o.name == "map");
+	const goal = mapObject.children.find(o => o.name == "goal")
+
+
+
+	let bbox1 = new THREE.Box3().setFromObject(player.gameObject);
+	let bbox2 = new THREE.Box3().setFromObject(goal);
+	
+	
+
+	return bbox1.intersectsBox(bbox2);
+  }
 
 
 

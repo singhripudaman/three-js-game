@@ -30,18 +30,24 @@ export class MapRenderer {
 
 		let groundMaterial = new THREE.MeshStandardMaterial({ color: 0x343434 });
 		let ground = new THREE.Mesh(this.groundGeometries, groundMaterial);
+		ground.name = "ground"
 
 		let obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0xfffffff });
 		let obstacles = new THREE.Mesh(this.obstacleGeometries, obstacleMaterial);
+		obstacles.name = "wall"
 
 		let goalMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700 });
 		let goals = new THREE.Mesh(this.goalGeometries, goalMaterial);
+		goals.name = "goal"
+
 
 		let gameObject = new THREE.Group();
 		
 		gameObject.add(ground);
 		gameObject.add(obstacles);
 		gameObject.add(goals);
+
+		gameObject.name = "map";
 
 		return gameObject;
 	}
@@ -140,7 +146,7 @@ export class MapRenderer {
 			}
 			
 		}
-		gameMap.scene.add(this.flowfieldGraphics);
+		// gameMap.scene.add(this.flowfieldGraphics);
 	}
 
 
