@@ -29,10 +29,6 @@ export class Player extends Character {
 
 		this.state.updateState(this, controller);
 
-		
-		console.log(this.location.distanceTo(goalLocation))
-
-		console.log(this.location.distanceTo(goalLocation))
 		if (this.location.distanceTo(goalLocation) < 23) {
 			let url = window.location.href;
 			if (url.indexOf('?') > -1){
