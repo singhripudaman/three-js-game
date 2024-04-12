@@ -121,6 +121,16 @@ export class NPC extends Character {
 
 	update(deltaTime, gameMap, player) {
 		this.state.updateState(this, gameMap, player);
+		console.log(this.location.distanceTo(player.location))
+		if (this.location.distanceTo(player.location) < 5) {
+			let url = window.location.href;
+			if (url.indexOf('?') > -1){
+				url += '&state=lose'
+			 } else {
+				url += '?state=lose'
+			 }
+			 window.location.href = url;
+		}
 		super.update(deltaTime, gameMap);
 	}
 

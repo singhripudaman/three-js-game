@@ -172,7 +172,22 @@ function checkCollisions() {
 
 
 const startButton = document.getElementById( 'startButton' );
-			startButton.addEventListener( 'click', setup );
+startButton.addEventListener( 'click', setup );
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const state = urlParams.get('state')
+
+const stateBox = document.getElementById('state');
+
+if (state == "win") {
+	stateBox.innerText = "You WON! Restart Game"
+} else if (state == "lose") {
+	stateBox.innerText = "You lost! Restart Game"
+} else {
+	stateBox.innerText = "Maze Escape: Police"
+}
+
 
 
 function onWindowResize() {
