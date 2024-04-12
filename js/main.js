@@ -1,30 +1,32 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GameMap } from './Game/World/GameMap.js';
-import { Character } from './Game/Behaviour/Character.js';
-import { Player } from './Game/Behaviour/Player.js';
-import { NPC } from './Game/Behaviour/NPC.js';
-import { Controller} from './Game/Behaviour/Controller.js';
-import { TileNode } from './Game/World/TileNode.js';
-import { Vector3 } from 'three';
-import { Resources } from './Util/Resources.js';
-
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GameMap } from "./Game/World/GameMap.js";
+import { Character } from "./Game/Behaviour/Character.js";
+import { Player } from "./Game/Behaviour/Player.js";
+import { NPC } from "./Game/Behaviour/NPC.js";
+import { Controller } from "./Game/Behaviour/Controller.js";
+import { TileNode } from "./Game/World/TileNode.js";
+import { Vector3 } from "three";
+import { Resources } from "./Util/Resources.js";
 
 // Create Scene
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 const renderer = new THREE.WebGLRenderer();
 
 // Camera Settings
 const cameraDistance = 0;
-const cameraHeight = 500;
+const cameraHeight = 100;
 var cameraOffset = new THREE.Vector3(0, cameraHeight, cameraDistance);
-var target = new THREE.Vector3(); 
-
+var target = new THREE.Vector3();
 
 // Audio
 let listener;
-
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 
@@ -45,157 +47,128 @@ let npc;
 // resources
 
 let files = [
-	{ name: 'car', url: '/models/lambo.glb'},
-	{ name: 'police', url: '/models/police.glb'}
-]
+  { name: "car", url: "/models/lambo.glb" },
+  { name: "police", url: "/models/police.glb" },
+];
 
 const resources = new Resources(files);
 await resources.loadAll();
 
-
-
-
 // Setup our scene
 function setup() {
+  const overlay = document.getElementById("overlay");
+  overlay.remove();
 
-	const overlay = document.getElementById( 'overlay' );
-	overlay.remove();
+  scene.background = new THREE.Color(0xffffff);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-	scene.background = new THREE.Color(0xffffff);
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.body.appendChild(renderer.domElement);
+  //Create Light
+  let directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+  directionalLight.position.set(0, 5, 5);
+  scene.add(directionalLight);
 
+  listener = new THREE.AudioListener();
+  camera.add(listener);
 
-	//Create Light
-	let directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-	directionalLight.position.set(0, 5, 5);
-	scene.add(directionalLight);
+  // initialize our gameMap
+  gameMap = new GameMap();
+  gameMap.init(scene);
 
-	listener = new THREE.AudioListener();
-	camera.add(listener);
+  // Create Player
+  npc = new NPC(new THREE.Color(0x000000));
 
+  player = new Player(new THREE.Color(0xff0000));
 
+  npc.setModel(resources.get("police"));
 
-	// initialize our gameMap
-	gameMap = new GameMap();
-	gameMap.init(scene);
-	
-	// Create Player
-	npc = new NPC(new THREE.Color(0x000000));
+  player.setModel(resources.get("car"));
+  // player.setLight()
 
-	player = new Player(new THREE.Color(0xff0000));
+  npc.setSound(listener, "weewoo");
 
+  // Add the character to the scene
+  scene.add(player.gameObject);
+  scene.add(npc.gameObject);
 
-	npc.setModel(resources.get("police"));
+  // scene.add(player.light)
 
-	player.setModel(resources.get("car"));
-	// player.setLight()
+  // Get a random starting place for the enemy
+  let startNPC = gameMap.graph.getRandomEmptyTile();
 
-	npc.setSound(listener, "weewoo")
+  let startPlayer = gameMap.graph.getRandomEmptyTile();
 
+  // this is where we start the player
+  player.location = gameMap.localize(startPlayer);
+  npc.location = gameMap.localize(startNPC);
 
-	// Add the character to the scene
-	scene.add(player.gameObject);
-	scene.add(npc.gameObject);
+  let goal = gameMap.graph.getRandomEmptyTile();
 
-	// scene.add(player.light)
+  gameMap.setupSingleGoalFlowField(goal);
 
+  scene.add(gameMap.gameObject);
 
-	// Get a random starting place for the enemy
-	let startNPC = gameMap.graph.getRandomEmptyTile();
-
-	let startPlayer = gameMap.graph.getRandomEmptyTile();
-
-	// this is where we start the player
-	player.location = gameMap.localize(startPlayer);
-	npc.location = gameMap.localize(startNPC);
-
-	let goal = gameMap.graph.getRandomEmptyTile();
-
-
-	gameMap.setupSingleGoalFlowField(goal);
-
-	
-	scene.add(gameMap.gameObject);
-
-	
-	
-	
-	
-	//First call to animate
-	animate();
+  //First call to animate
+  animate();
 }
-
 
 // animate
 function animate() {
-	requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
+  target.copy(player.location);
+  camera.position.copy(target).add(cameraOffset);
+  camera.lookAt(target);
 
-	target.copy(player.location)
-	camera.position.copy(target).add(cameraOffset)
-	camera.lookAt(target)
+  renderer.render(scene, camera);
 
+  let deltaTime = clock.getDelta();
 
-	renderer.render(scene, camera);
-	
-	let deltaTime = clock.getDelta();
+  // let steer = npc.interactiveFlow(gameMap, player);
+  // npc.applyForce(steer);
+  npc.update(deltaTime, gameMap, player);
 
-	// let steer = npc.interactiveFlow(gameMap, player);
-	// npc.applyForce(steer);
-	npc.update(deltaTime, gameMap, player);
+  player.update(deltaTime, gameMap, controller);
 
+  checkCollisions();
 
-
-	player.update(deltaTime, gameMap, controller);
-
-	checkCollisions()
- 
-	orbitControls.update();
-	controller.setWorldDirection();
+  orbitControls.update();
+  controller.setWorldDirection();
 }
 
 function checkCollisions() {
-	const mapObject = scene.children.find(o => o.name == "map");
-	const goal = mapObject.children.find(o => o.name == "goal")
+  const mapObject = scene.children.find((o) => o.name == "map");
+  const goal = mapObject.children.find((o) => o.name == "goal");
 
+  let bbox1 = new THREE.Box3().setFromObject(player.gameObject);
+  let bbox2 = new THREE.Box3().setFromObject(goal);
 
+  return bbox1.intersectsBox(bbox2);
+}
 
-	let bbox1 = new THREE.Box3().setFromObject(player.gameObject);
-	let bbox2 = new THREE.Box3().setFromObject(goal);
-	
-	
-
-	return bbox1.intersectsBox(bbox2);
-  }
-
-
-
-const startButton = document.getElementById( 'startButton' );
-startButton.addEventListener( 'click', setup );
+const startButton = document.getElementById("startButton");
+startButton.addEventListener("click", setup);
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const state = urlParams.get('state')
+const state = urlParams.get("state");
 
-const stateBox = document.getElementById('state');
+const stateBox = document.getElementById("state");
 
 if (state == "win") {
-	stateBox.innerText = "You WON! Restart Game"
+  stateBox.innerText = "You WON! Restart Game";
 } else if (state == "lose") {
-	stateBox.innerText = "You lost! Restart Game"
+  stateBox.innerText = "You lost! Restart Game";
 } else {
-	stateBox.innerText = "Maze Escape: Police"
+  stateBox.innerText = "Maze Escape: Police";
 }
 
-
-
 function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 
-  	// Update the renderer size
-	renderer.setSize(window.innerWidth, window.innerHeight);
+  // Update the renderer size
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 // Add a resize event listener
