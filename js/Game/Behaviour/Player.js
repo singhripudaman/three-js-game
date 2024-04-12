@@ -34,7 +34,13 @@ export class Player extends Character {
 
 		console.log(this.location.distanceTo(goalLocation))
 		if (this.location.distanceTo(goalLocation) < 23) {
-			console.log("gameover")
+			let url = window.location.href;
+			if (url.indexOf('?') > -1){
+				url += '&state=win'
+			 } else {
+				url += '?state=win'
+			 }
+			 window.location.href = url;
 		}
 		super.update(deltaTime, gameMap);
 	}
