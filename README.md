@@ -7,17 +7,22 @@ COMP 4303 Term Project
 A Maze Escape Game while being pursued. \
 Story: You have just robbed a Lamborghini and are being pursued by cops through a maze. The cops will give chase if they get close enough, but through your skilful driving, you can lose them and escape with your loot.
 
+
 ## Team
 
 - Ripudaman Singh 202054565
 - Mohammed Balfaqih 202051926
 
 ## How to Run
+### Locally
 
 - Download .zip file
 - run `npm install vite three` in the root directory
 - run `npx vite`
 - Click on "Play" button in the browser
+
+### Hosted online
+https://policemazegame.netlify.app/
 
 ## Controls
 
